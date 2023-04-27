@@ -43,6 +43,8 @@ const rhymObj2DOMObj = (rhymeObj) => {
   // "syllables": "1"
   const rhymeListItem = document.createElement("li");
   const rhymeButton = document.createElement("button");
+  rhymeButton.classList.add('btn')
+  rhymeButton.classList.add('btn-info')
   rhymeButton.textContent = rhymeObj.word;
   rhymeButton.onclick = searchForBook;
   rhymeListItem.appendChild(rhymeButton);
@@ -54,7 +56,13 @@ const searchForBook = (ev) => {
   console.log("search for", word);
   return fetch(`https://gutendex.com/books/?search=${word}`).then((r) =>
     r.json()
-  );
+  ).then((bookResultsObj)=> {
+    // console.log(bookResultsObj.hasOwnProperty('results'))
+    const bookCardsArray = bookResultsObj.results.map(bookObj2DOMObj)
+    console.log("bookCardsArray", bookCardsArray);
+    const bookResultsElem = document.getElementById("book-results");
+    bookCardsArray.forEach(book=>bookResultsElem.appendChild(book))
+  })
 };
 
 const bookObj2DOMObj = (bookObj) => {
