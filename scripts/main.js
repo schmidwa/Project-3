@@ -1,3 +1,4 @@
+
 const searchForm = document.getElementById("top-search");
 searchForm.onsubmit = (ev) => {
   console.log("submitted top-search with", ev);
@@ -103,3 +104,17 @@ const bookObj2DOMObj = (bookObj) => {
   return bookCardDiv
   
 };
+
+
+do_api_call = false
+
+if (do_api_call) {
+  deepai.setApiKey('a838e6cf-6a8d-4d3d-9398-311327a78c3d');
+
+  (async function() {
+      var resp = await deepai.callStandardApi("text2img", {
+              text: '',
+      });
+      console.log(resp);
+  })()
+}
