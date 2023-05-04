@@ -98,24 +98,7 @@ function generateRandomString(length) {
   const urlParams = new URLSearchParams(window.location.search);
   let code = urlParams.get('code');
   if (code) {
-
     console.log('got code! 🙌', code)
-    /*
-    async function getProfile(accessToken) {
-      // let accessToken = localStorage.getItem('access_token');
-
-      const response = await fetch('https://api.spotify.com/v1/me', {
-        headers: {
-          Authorization: 'Bearer ' + accessToken
-        }
-      });
-
-      const data = await response.json();
-      console.log(data)
-    }
-    getProfile(code)
-    getProfileOther(code)
-    */
   }
 
   let token = localStorage.getItem('access_token')
@@ -223,6 +206,7 @@ const button = document.getElementById('begin')
               });
               console.log(resp);
               let image = document.createElement("img")
+              image.className = "resize_image"
               image.src = resp.output_url //"https://play-lh.googleusercontent.com/P2VMEenhpIsubG2oWbvuLGrs0GyyzLiDosGTg8bi8htRXg9Uf0eUtHiUjC28p1jgHzo=w480-h960"
               section.appendChild(image)
           })()
