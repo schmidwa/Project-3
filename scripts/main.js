@@ -1,4 +1,46 @@
+const clientId = '67cf7885f0994edc99ad34e943eec543';
+const redirectUri = 'http://127.0.0.1:5500';
 
+let playlist_info = ""
+
+
+function getToken(clientId, redirectUri, code) {
+  if (!(clientId && redirectUri && code)) {
+    console.error('requires', clientId, redirectUri, code)
+  }
+  let codeVerifier = localStorage.getItem('code_verifier');
+
+  let body = new URLSearchParams({
+    grant_type: 'authorization_code',
+    code: code,
+    redirect_uri: redirectUri,
+    client_id: clientId,
+    code_verifier: codeVerifier
+  });
+
+  return fetch('https://accounts.spotify.com/api/token', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: body
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('HTTP status ' + response.status);
+      }
+      return response.json();
+    })
+    .then(data => {
+      localStorage.setItem('access_token', data.access_token);
+      return data.access_token;
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+}
+
+/*
 const searchForm = document.getElementById("top-search");
 searchForm.onsubmit = (ev) => {
   console.log("submitted top-search with", ev);
@@ -22,7 +64,7 @@ searchForm.onsubmit = (ev) => {
     });
   });
 };
-
+*/
 // THE CODE ABOVE COULD BE A USEFUL TEMPLATE
 
 // ===== DeepAI =====
@@ -52,14 +94,13 @@ function generateRandomString(length) {
 
 // Code Challenge
 
-
-
-
   // getting code from uri
   const urlParams = new URLSearchParams(window.location.search);
   let code = urlParams.get('code');
   if (code) {
+
     console.log('got code! 🙌', code)
+    /*
     async function getProfile(accessToken) {
       // let accessToken = localStorage.getItem('access_token');
 
@@ -73,9 +114,33 @@ function generateRandomString(length) {
       console.log(data)
     }
     getProfile(code)
+    getProfileOther(code)
+    */
   }
+
+  let token = localStorage.getItem('access_token')
+  console.log (token)
+  if (!token && code)
+  {
+    console.log('clicccccked')
+    console.log('gettoken', clientId, redirectUri, code)
+    if (clientId && redirectUri && code) {
+      getToken(clientId, redirectUri, code)
+        .then(t => {
+          token = t
+          localStorage.setItem('access_token', token)
+          return token
+        }).then (getProfileOther) 
+    }
+  }
+
+  if (token && code) {
+    getProfileOther(token)
+  }
+
 const button = document.getElementById('begin')
   button.addEventListener('click', async ()=>{
+    console.log ("THIS DOES SOMETHING")
     console.log('get token')
 
     async function generateCodeChallenge(codeVerifier) {
@@ -93,19 +158,18 @@ const button = document.getElementById('begin')
       return base64encode(digest);
     }
 
-    const clientId = '2a6b7c52c7b34693bc60f0620512d363';
 
-    // we'll have to leave it like this until we get our site hosted
-    const redirectUri = 'https://w3.cs.jmu.edu/stewarmc/343/s23/pkce';
+    // const redirectUri = 'https://w3.cs.jmu.edu/stewarmc/343/s23/pkce';
 
-    let codeVerifier = generateRandomString(128);
+    let codeVerifier = generateRandomString(128); 
 
     generateCodeChallenge(codeVerifier).then(codeChallenge => {
       let state = generateRandomString(16);
       let scope = 'user-read-private user-read-email';
 
       localStorage.setItem('code_verifier', codeVerifier);
-
+      console.log(localStorage.getItem('code_verifier'))
+      console.log (redirectUri)
       let args = new URLSearchParams({
         response_type: 'code',
         client_id: clientId,
@@ -115,11 +179,60 @@ const button = document.getElementById('begin')
         code_challenge_method: 'S256',
         code_challenge: codeChallenge
       });
-
+      console.log (args)
+      console.log("this should show up")
       window.location = 'https://accounts.spotify.com/authorize?' + args;
     });
 
   })
+
+   // function to use the profile endpoint
+   function getProfileOther(accessToken) {
+    console.log("\n\nmade it here")
+    return fetch('https://api.spotify.com/v1/me/playlists', {
+      headers: {
+        Authorization: 'Bearer ' + accessToken
+      }
+    }).then(r => r.json()).then(data => {
+      console.log("Items: ", data.items)
+      //for item in data.items:
+      let section = document.getElementById("playlists");
+      let names = []
+      for (let i = 0; i < data.items.length; i++) {
+        cur_name = data.items[i].name
+        console.log(cur_name)
+        names.push(cur_name)
+        var element = document.createElement("button");
+
+        element.innerHTML = cur_name
+        element.addEventListener("click", ()=>{
+          section.innerHTML = ""
+
+          playlist_info = data.items[i]
+          console.log ("Button has been clicked")
+          console.log (playlist_info)
+          playlist_info.tracks.href
+          deepai.setApiKey('a838e6cf-6a8d-4d3d-9398-311327a78c3d');
+
+          (async function() {
+              var resp = await deepai.callStandardApi("text2img", {
+                      text: 'Cover of an Album ' + playlist_info.name + ' With Absolutely No Text digital art',
+              });
+              console.log(resp);
+              let image = document.createElement("img")
+              image.src = resp.output_url //"https://play-lh.googleusercontent.com/P2VMEenhpIsubG2oWbvuLGrs0GyyzLiDosGTg8bi8htRXg9Uf0eUtHiUjC28p1jgHzo=w480-h960"
+              section.appendChild(image)
+          })()
+        })
+        
+        section.appendChild(element)
+      }
+      console.log(names)
+      // now with names, create a button for each name
+      console.log("\n\nData: ", data)
+      return data;
+    })
+  }
 
 
 // I COMMENTED EVERYTHING BELOW OUT, IT COULD BE USEFUL TO REFERENCE
