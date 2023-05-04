@@ -1,3 +1,20 @@
 #book-results .card {
   width: 8rem;
 }
+
+.row {
+  margin-left: 10px
+}
+
+/* mobile rules */
+@media screen and (max-width: 1240px) {
+  .resize_image {
+    max-width: 80vw;
+    max-height: 80vw;
+    margin-left: 20px;
+  }
+
+  .container-fluid {
+    visibility: hidden;
+  }
+}
