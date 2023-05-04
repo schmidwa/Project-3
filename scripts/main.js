@@ -1,5 +1,5 @@
 const clientId = '67cf7885f0994edc99ad34e943eec543';
-const redirectUri = 'http://127.0.0.1:5500';
+const redirectUri = 'https://w3stu.cs.jmu.edu/schmidwa/343s23/Project-3/';
 
 let playlist_info = ""
 
@@ -207,7 +207,10 @@ const button = document.getElementById('begin')
         element.innerHTML = cur_name
         element.addEventListener("click", ()=>{
           section.innerHTML = ""
-
+          
+          let wait_element = document.createElement("div")
+          wait_element.innerHTML = "Please wait for the image to load"
+          section.appendChild(wait_element)
           playlist_info = data.items[i]
           console.log ("Button has been clicked")
           console.log (playlist_info)
@@ -223,6 +226,9 @@ const button = document.getElementById('begin')
               image.src = resp.output_url //"https://play-lh.googleusercontent.com/P2VMEenhpIsubG2oWbvuLGrs0GyyzLiDosGTg8bi8htRXg9Uf0eUtHiUjC28p1jgHzo=w480-h960"
               section.appendChild(image)
           })()
+          wait_element.innerHTML = ""
+
+
         })
         
         section.appendChild(element)
